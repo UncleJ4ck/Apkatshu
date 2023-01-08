@@ -34,7 +34,9 @@ Application=$2
 Tool=$1
 todate=$(date +"%Y-%m-%d")
 file_base=`basename $Application .apk`
-dist_dir="Outpkatshu/"$file_base"_katshu_$todate"
+mkdir $(pwd)/"Outpkatshu/" 2> /dev/null
+mkdir $(pwd)/"Outpkatshu/"$file_base"_katshu_$todate" 2> /dev/null
+dist_dir=$(pwd)/"Outpkatshu/"$file_base"_katshu_$todate"
 
 
 usage() { echo -e "Usage: ./Apkatshu.sh apktool/jadx file.apk " 1>&2; exit 1; }
@@ -80,7 +82,6 @@ jadxx(){
 
 
 apkk(){
-
         if which apktool >/dev/null; then
                     true
         else
@@ -93,29 +94,27 @@ apkk(){
 }
 
 function final(){
-echo -e ${PINK} "[*] the extracted data has been saved to ".$dist_dir
-echo -e -n ${YELLOW}"\n[*] Which Type of data you want to extract \n "
-echo -e "  ${NC}[${CG}"1"${NC}]${CNC} urls"
-echo -e "   ${NC}[${CG}"2"${NC}]${CNC} emails"
-echo -e "   ${NC}[${CG}"3"${NC}]${CNC} Exit"
-echo "\n[+] Select: "
-        read pikatshu
-                if [ $pikatshu -eq 1 ]; then
-                        urls
-                elif [ $pikatshu -eq 2 ]; then
-                        emails
-                elif [ $pikatshu -eq 3 ]; then
-                      exit
-                fi
-
+        echo -e ${PINK} "[*] the extracted data has been saved to ".$dist_dir
+        echo -e -n ${YELLOW}"\n[*] Which Type of data you want to extract \n "
+        echo -e "  ${NC}[${CG}"1"${NC}]${CNC} urls"
+        echo -e "   ${NC}[${CG}"2"${NC}]${CNC} emails"
+        echo -e "   ${NC}[${CG}"3"${NC}]${CNC} Exit"
+        read -p "[+] Select: " pikatshu
+        if [ $pikatshu -eq 1 ]; then
+                urls
+        elif [ $pikatshu -eq 2 ]; then
+                emails
+        elif [ $pikatshu -eq 3 ]; then
+                exit
+        fi
 }
 function urls(){
-	cat ./$dist_dir/extracted_data.txt | sort -u | grep -Eo "(http|https)://[a-zA-Z0-9./?=_%:-]*"  | tee ./$dist_dir/extracted_urls.txt
-	echo " [*] Extracted urls saved to ".$dist_dir/"extracted_urls.txt"
+	cat $dist_dir/extracted_data.txt | sort -u | grep -Eo "(http|https)://[a-zA-Z0-9./?=_%:-]*"  | tee $dist_dir/extracted_urls.txt
+	echo " [*] Extracted urls saved to "$dist_dir/"extracted_urls.txt"
 	final
 }
 function emails(){
-	cat ./$dist_dir/extracted_data.txt | sort -u | grep -Eo '[[:alnum:]+\.\_\-]*@[[:alnum:]+\.\_\-]*' | tee ./$dist_dir/extracted_emails.txt
+	cat $dist_dir/extracted_data.txt | sort -u | grep -Eo '[[:alnum:]+\.\_\-]*@[[:alnum:]+\.\_\-]*' | tee $dist_dir/extracted_emails.txt
 	final
 }
 
